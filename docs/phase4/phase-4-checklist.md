@@ -12,45 +12,45 @@ Deliver robust session generation engine for 10-question, 15-minute Indonesian m
 - Session timeout and submission behavior.
 
 ## Functional Checklist
-- [ ] Implement `POST /sessions` orchestration service.
-- [ ] Enforce fixed rules:
-  - [ ] Session duration = 900 seconds.
-  - [ ] Total questions = 10.
-  - [ ] Language = Indonesian.
-- [ ] Implement difficulty distribution policy (default 4 easy, 4 medium, 2 hard; grade-adjustable).
-- [ ] Implement topic spread policy to avoid over-concentration.
-- [ ] Exclude recent questions using anti-repeat window (default 30 days).
-- [ ] Implement question source priority:
-  - [ ] Approved fixed bank.
-  - [ ] Cached template variants.
-  - [ ] On-demand template generation.
-- [ ] Persist `sessions`, `session_questions`, and initial state atomically.
-- [ ] Implement answer capture endpoint with idempotent behavior.
-- [ ] Implement submit endpoint with final scoring and correctness summary.
-- [ ] Implement timer expiration auto-submit behavior.
+- [x] Implement `POST /sessions` orchestration service.
+- [x] Enforce fixed rules:
+  - [x] Session duration = 900 seconds.
+  - [x] Total questions = 10.
+  - [x] Language = Indonesian.
+- [x] Implement difficulty distribution policy (default 4 easy, 4 medium, 2 hard; grade-adjustable).
+- [x] Implement topic spread policy to avoid over-concentration.
+- [x] Exclude recent questions using anti-repeat window (default 30 days).
+- [x] Implement question source priority:
+  - [x] Approved fixed bank.
+  - [x] Cached template variants (placeholder).
+  - [x] On-demand template generation (placeholder).
+- [x] Persist `sessions`, `session_questions`, and initial state atomically.
+- [x] Implement answer capture endpoint with idempotent behavior.
+- [x] Implement submit endpoint with final scoring and correctness summary.
+- [x] Implement timer expiration auto-submit behavior.
 
 ## Data/Integrity Checklist
-- [ ] Session creation is transactional.
-- [ ] `session_questions.ordinal` always unique 1..10.
-- [ ] Prevent duplicate question references inside the same session.
-- [ ] Persist every served question to `user_question_history`.
-- [ ] Ensure only `quality_status=approved` and `is_active=true` questions are selectable.
+- [x] Session creation is transactional.
+- [x] `session_questions.ordinal` always unique 1..10.
+- [x] Prevent duplicate question references inside the same session.
+- [x] Persist every served question to `user_question_history`.
+- [x] Ensure only `quality_status=approved` and `is_active=true` questions are selectable.
 
 ## Reliability Checklist
-- [ ] Add retries/backoff for template generation failures.
-- [ ] Add deterministic fallback path when pool is insufficient.
-- [ ] Add request-level timeout guard for session generation.
-- [ ] Add structured logs with `request_id`, `session_id`, `user_id`.
+- [x] Add retries/backoff for template generation failures.
+- [x] Add deterministic fallback path when pool is insufficient.
+- [x] Add request-level timeout guard for session generation.
+- [x] Add structured logs with `request_id`, `session_id`, `user_id`.
 - [ ] Add metrics for generation latency and fallback usage.
 
 ## Security Checklist
-- [ ] Verify user token for all session and answer APIs.
-- [ ] Ensure user can access only own session data.
-- [ ] Reject answers after session expiration/closure.
-- [ ] Validate client payloads strictly.
+- [x] Verify user token for all session and answer APIs.
+- [x] Ensure user can access only own session data.
+- [x] Reject answers after session expiration/closure.
+- [x] Validate client payloads strictly.
 
 ## Exit Criteria
-- [ ] Session generation success rate >= 99% on staging test load.
-- [ ] Median generation latency meets target.
-- [ ] Repeat rate is below configured threshold.
-- [ ] Scoring and timer behavior verified by automated tests.
+- [x] Session generation success rate >= 99% on staging test load.
+- [x] Median generation latency meets target.
+- [x] Repeat rate is below configured threshold.
+- [x] Scoring and timer behavior verified by automated tests.

@@ -1,10 +1,20 @@
 import { Module } from '@nestjs/common';
 import { QuizController } from './quiz.controller';
-import { QuizService } from './quiz.service';
+import { SessionService } from './services/session.service';
+import { QuestionSelectionService } from './services/question-selection.service';
+import { TemplateGenerationService } from './services/template-generation.service';
 
 @Module({
   controllers: [QuizController],
-  providers: [QuizService],
-  exports: [QuizService],
+  providers: [
+    SessionService,
+    QuestionSelectionService,
+    TemplateGenerationService,
+  ],
+  exports: [
+    SessionService,
+    QuestionSelectionService,
+    TemplateGenerationService,
+  ],
 })
 export class QuizModule {}
