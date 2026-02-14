@@ -1,134 +1,233 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/widgets.dart';
+import '../../../providers/quiz_provider.dart';
+import '../../../data/sources/api_client.dart';
 
-class QuizScreen extends StatefulWidget {
+class QuizScreen extends ConsumerStatefulWidget {
   const QuizScreen({super.key});
 
   @override
-  State<QuizScreen> createState() => _QuizScreenState();
+  ConsumerState<QuizScreen> createState() => _QuizScreenState();
 }
 
-class _QuizScreenState extends State<QuizScreen> {
-  // Mock data - will be replaced with actual data in Phase 2
-  final int _totalQuestions = 10;
-  int _currentQuestionIndex = 0;
-  int _secondsRemaining = 900; // 15 minutes
-  int? _selectedAnswer;
-  bool _showResult = false;
-  Timer? _timer;
-
-  // Mock question data
-  final List<Map<String, dynamic>> _questions = [
-    {
-      'question': 'Berapakah hasil dari 25 + 37?',
-      'options': ['52', '62', '72', '82'],
-      'correct': 1,
-    },
-    {
-      'question': 'Jika 8 × 7 = ?',
-      'options': ['54', '56', '58', '62'],
-      'correct': 1,
-    },
-    {
-      'question': 'Hasil dari 100 - 45 adalah?',
-      'options': ['45', '55', '65', '75'],
-      'correct': 1,
-    },
-    {
-      'question': 'Berapakah 72 ÷ 8?',
-      'options': ['8', '9', '10', '12'],
-      'correct': 1,
-    },
-    {
-      'question': 'Nilai tempat angka 5 pada bilangan 3.567 adalah?',
-      'options': ['Satuan', 'Puluhan', 'Ratusan', 'Ribuan'],
-      'correct': 2,
-    },
-    {
-      'question': 'Hasil dari 15 + 27 - 12 adalah?',
-      'options': ['28', '30', '32', '34'],
-      'correct': 1,
-    },
-    {
-      'question': 'Manakah bilangan genap berikut?',
-      'options': ['13', '17', '22', '29'],
-      'correct': 2,
-    },
-    {
-      'question': 'Jika a = 5 dan b = 3, maka a × b + 2 = ?',
-      'options': ['15', '17', '19', '21'],
-      'correct': 1,
-    },
-    {
-      'question': 'Keliling persegi dengan sisi 6 cm adalah?',
-      'options': ['12 cm', '18 cm', '24 cm', '36 cm'],
-      'correct': 2,
-    },
-    {
-      'question': 'Berapakah 1/4 dari 80?',
-      'options': ['15', '20', '25', '30'],
-      'correct': 1,
-    },
-  ];
-
+class _QuizScreenState extends ConsumerState<QuizScreen> {
   @override
   void initState() {
     super.initState();
-    _startTimer();
+    // Set landscape orientation for quiz (optional)
+    // SystemChrome.setPreferredOrientations([
+    //   DeviceOrientation.portraitUp,
+    // ]);
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    // Reset orientation
+    // SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     super.dispose();
   }
 
-  void _startTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_secondsRemaining > 0) {
-        setState(() {
-          _secondsRemaining--;
-        });
-      } else {
-        timer.cancel();
-        _finishQuiz();
-      }
-    });
+  @override
+  Widget build(BuildContext context) {
+    final quizState = ref.watch(quizProvider);
+    final currentQuestion = ref.watch(currentQuestionProvider);
+
+    if (quizState.session == null || currentQuestion == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    // Check if quiz is completed
+    if (quizState.result != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.pushReplacement('/quiz/result');
+      });
+    }
+
+    final progress = (quizState.currentQuestionIndex + 1) / quizState.totalQuestions;
+
+    return WillPopScope(
+      onWillPop: () async {
+        _showExitConfirmation();
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.close, color: AppColors.onSurface),
+            onPressed: _showExitConfirmation,
+          ),
+          title: Column(
+            children: [
+              Text(
+                'Soal ${quizState.currentQuestionIndex + 1} dari ${quizState.totalQuestions}',
+                style: const TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 4),
+              ClipRRect(
+                borderRadius: AppRadius.chip,
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 4,
+                  backgroundColor: AppColors.surfaceVariant,
+                  valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: AppSpacing.screenPadding),
+              child: Center(
+                child: _TimerBadge(seconds: quizState.timeRemaining),
+              ),
+            ),
+          ],
+        ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              // Question Card
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: AppSpacing.paddingHorizontal,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: AppSpacing.lg),
+                      AppCard.elevated(
+                        padding: const EdgeInsets.all(AppSpacing.xl),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Difficulty badge
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.md,
+                                vertical: AppSpacing.xs,
+                              ),
+                              decoration: BoxDecoration(
+                                color: _getDifficultyColor(currentQuestion.difficulty).withOpacity(0.1),
+                                borderRadius: AppRadius.chip,
+                              ),
+                              child: Text(
+                                _getDifficultyLabel(currentQuestion.difficulty),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: _getDifficultyColor(currentQuestion.difficulty),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.lg),
+                            // Question text
+                            Text(
+                              currentQuestion.question,
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                height: 1.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.xl),
+                      // Answer options
+                      ...currentQuestion.options.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final option = entry.value;
+                        final isSelected = quizState.answers[currentQuestion.id] == index;
+
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                          child: AnswerOption(
+                            label: String.fromCharCode(65 + index),
+                            text: option,
+                            state: isSelected
+                                ? AnswerOptionState.selected
+                                : AnswerOptionState.normal,
+                            onTap: () => _selectAnswer(index),
+                          ),
+                        );
+                      }).toList(),
+                      const SizedBox(height: AppSpacing.lg),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Navigation buttons
+              Container(
+                padding: const EdgeInsets.all(AppSpacing.screenPadding),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  boxShadow: AppShadows.small,
+                ),
+                child: SafeArea(
+                  child: Row(
+                    children: [
+                      // Previous button
+                      if (!quizState.isFirstQuestion)
+                        AppButton.secondary(
+                          text: 'Sebelumnya',
+                          onPressed: () {
+                            ref.read(quizProvider.notifier).previousQuestion();
+                          },
+                        )
+                      else
+                        const SizedBox(width: 100),
+                      const Spacer(),
+                      // Next/Submit button
+                      quizState.isLastQuestion
+                          ? AppButton.primary(
+                              text: quizState.isSubmitting ? 'Menyimpan...' : 'Selesai',
+                              isLoading: quizState.isSubmitting,
+                              onPressed: quizState.answeredCount < quizState.totalQuestions
+                                  ? () => _showIncompleteWarning()
+                                  : () => _submitQuiz(),
+                            )
+                          : AppButton.primary(
+                              text: 'Selanjutnya',
+                              onPressed: () {
+                                ref.read(quizProvider.notifier).nextQuestion();
+                              },
+                            ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _selectAnswer(int index) {
-    if (_showResult) return;
-    
-    setState(() {
-      _selectedAnswer = index;
-      _showResult = true;
-    });
+    final quizNotifier = ref.read(quizProvider.notifier);
+    quizNotifier.answerQuestion(index);
 
-    // Delay before moving to next question
-    Future.delayed(const Duration(seconds: 1), () {
-      if (_currentQuestionIndex < _totalQuestions - 1) {
-        setState(() {
-          _currentQuestionIndex++;
-          _selectedAnswer = null;
-          _showResult = false;
-        });
-      } else {
-        _finishQuiz();
-      }
-    });
+    // Auto-advance after a short delay if not last question
+    final quizState = ref.read(quizProvider);
+    if (!quizState.isLastQuestion) {
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted) {
+          quizNotifier.nextQuestion();
+        }
+      });
+    }
   }
 
-  void _finishQuiz() {
-    _timer?.cancel();
-    context.pushReplacement('/quiz/result?sessionId=mock-session-id');
-  }
-
-  void _exitQuiz() {
+  void _showExitConfirmation() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -144,9 +243,12 @@ class _QuizScreenState extends State<QuizScreen> {
           AppButton(
             text: 'Keluar',
             variant: AppButtonVariant.danger,
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
-              context.pop();
+              await ref.read(quizProvider.notifier).abandonSession();
+              if (mounted) {
+                context.go('/');
+              }
             },
           ),
         ],
@@ -154,126 +256,94 @@ class _QuizScreenState extends State<QuizScreen> {
     );
   }
 
-  AnswerOptionState _getOptionState(int index) {
-    if (!_showResult) {
-      if (_selectedAnswer == null) return AnswerOptionState.normal;
-      return _selectedAnswer == index
-          ? AnswerOptionState.selected
-          : AnswerOptionState.normal;
-    }
-
-    final correctIndex = _questions[_currentQuestionIndex]['correct'] as int;
-    if (index == correctIndex) return AnswerOptionState.correct;
-    if (index == _selectedAnswer) return AnswerOptionState.wrong;
-    return AnswerOptionState.disabled;
+  void _showIncompleteWarning() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Belum Selesai'),
+        content: const Text(
+          'Kamu belum menjawab semua soal. Yakin ingin menyelesaikan?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Lanjutkan'),
+          ),
+          AppButton.primary(
+            text: 'Selesaikan',
+            onPressed: () {
+              Navigator.pop(context);
+              _submitQuiz();
+            },
+          ),
+        ],
+      ),
+    );
   }
+
+  Future<void> _submitQuiz() async {
+    final success = await ref.read(quizProvider.notifier).submitSession();
+    
+    if (success && mounted) {
+      context.pushReplacement('/quiz/result');
+    }
+  }
+
+  Color _getDifficultyColor(int difficulty) {
+    if (difficulty <= 2) return AppColors.success;
+    if (difficulty == 3) return AppColors.warning;
+    return AppColors.error;
+  }
+
+  String _getDifficultyLabel(int difficulty) {
+    if (difficulty <= 2) return 'Mudah';
+    if (difficulty == 3) return 'Sedang';
+    return 'Sulit';
+  }
+}
+
+class _TimerBadge extends StatelessWidget {
+  final int seconds;
+
+  const _TimerBadge({required this.seconds});
 
   @override
   Widget build(BuildContext context) {
-    final currentQuestion = _questions[_currentQuestionIndex];
-    final questionText = currentQuestion['question'] as String;
-    final options = currentQuestion['options'] as List<String>;
-    final progress = (_currentQuestionIndex + 1) / _totalQuestions;
+    final minutes = seconds ~/ 60;
+    final remainingSeconds = seconds % 60;
+    final timeString = 
+        '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
 
-    return WillPopScope(
-      onWillPop: () async {
-        _exitQuiz();
-        return false;
-      },
-      child: Scaffold(
-        backgroundColor: AppColors.background,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.close, color: AppColors.onSurface),
-            onPressed: _exitQuiz,
-          ),
-          title: QuizProgressBar(
-            currentQuestion: _currentQuestionIndex + 1,
-            totalQuestions: _totalQuestions,
-            value: progress,
-          ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(right: AppSpacing.screenPadding),
-              child: Center(
-                child: TimerBadge(
-                  secondsRemaining: _secondsRemaining,
-                  totalSeconds: 900,
-                ),
-              ),
-            ),
-          ],
-        ),
-        body: SafeArea(
-          child: Padding(
-            padding: AppSpacing.paddingHorizontal,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: AppSpacing.xl),
-                // Question Card
-                Expanded(
-                  child: AppCard.elevated(
-                    padding: const EdgeInsets.all(AppSpacing.xl),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Question number badge
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.md,
-                            vertical: AppSpacing.xs,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryContainer,
-                            borderRadius: AppRadius.chip,
-                          ),
-                          child: Text(
-                            'Soal ${_currentQuestionIndex + 1}',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.lg),
-                        // Question text
-                        Text(
-                          questionText,
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            height: 1.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xl),
-                // Answer options
-                Expanded(
-                  flex: 2,
-                  child: ListView.separated(
-                    itemCount: options.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
-                    itemBuilder: (context, index) {
-                      return AnswerOption(
-                        label: String.fromCharCode(65 + index), // A, B, C, D
-                        text: options[index],
-                        state: _getOptionState(index),
-                        onTap: () => _selectAnswer(index),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-              ],
+    // Determine color based on remaining time
+    Color color = AppColors.timerNormal;
+    if (seconds < 60) color = AppColors.timerCritical;
+    else if (seconds < 180) color = AppColors.timerWarning;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: AppRadius.chip,
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.timer, size: 16, color: color),
+          const SizedBox(width: AppSpacing.xs),
+          Text(
+            timeString,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: color,
+              fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),
-        ),
+        ],
       ),
     );
   }

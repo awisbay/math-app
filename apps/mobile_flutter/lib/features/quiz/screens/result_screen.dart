@@ -1,29 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/widgets/widgets.dart';
+import '../../../providers/quiz_provider.dart';
 
-class ResultScreen extends StatelessWidget {
-  final String sessionId;
-
-  const ResultScreen({
-    super.key,
-    required this.sessionId,
-  });
+class ResultScreen extends ConsumerWidget {
+  const ResultScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Mock result data - will be replaced with actual data in Phase 2
-    const score = 8;
-    const totalQuestions = 10;
-    const correctAnswers = 8;
-    const timeSpent = 720; // seconds
-    const newStreak = 6;
-    const streakIncreased = true;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final quizState = ref.watch(quizProvider);
+    final result = quizState.result;
 
-    final percentage = (correctAnswers / totalQuestions * 100).round();
-    final isSuccess = percentage >= 60;
+    if (result == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    final isSuccess = result.percentage >= 60;
 
     return Scaffold(
       body: SafeArea(
@@ -70,40 +67,6 @@ class ResultScreen extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: AppSpacing.xl),
-                    // Streak notification
-                    if (streakIncreased)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.lg,
-                          vertical: AppSpacing.md,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.warning.withOpacity(0.1),
-                          borderRadius: AppRadius.lgRadius,
-                          border: Border.all(
-                            color: AppColors.warning.withOpacity(0.3),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(
-                              Icons.local_fire_department,
-                              color: AppColors.warning,
-                            ),
-                            const SizedBox(width: AppSpacing.sm),
-                            Text(
-                              'Streak $newStreak hari!',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.warning,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    const SizedBox(height: AppSpacing.xxl),
                     // Score Card
                     AppCard.result(
                       isSuccess: isSuccess,
@@ -128,7 +91,7 @@ class ResultScreen extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    '$score',
+                                    '${result.score}',
                                     style: TextStyle(
                                       fontSize: 56,
                                       fontWeight: FontWeight.bold,
@@ -138,7 +101,7 @@ class ResultScreen extends StatelessWidget {
                                     ),
                                   ),
                                   Text(
-                                    '/$totalQuestions',
+                                    '/${result.totalQuestions}',
                                     style: TextStyle(
                                       fontSize: 24,
                                       color: AppColors.onSurfaceVariant,
@@ -150,7 +113,7 @@ class ResultScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: AppSpacing.lg),
                           Text(
-                            '$percentage% Benar',
+                            '${result.percentage}% Benar',
                             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.w600,
                             ),
@@ -165,7 +128,7 @@ class ResultScreen extends StatelessWidget {
                         Expanded(
                           child: _StatCard(
                             icon: Icons.check_circle,
-                            value: '$correctAnswers',
+                            value: '${result.correctAnswers}',
                             label: 'Benar',
                             color: AppColors.success,
                           ),
@@ -174,7 +137,7 @@ class ResultScreen extends StatelessWidget {
                         Expanded(
                           child: _StatCard(
                             icon: Icons.cancel,
-                            value: '${totalQuestions - correctAnswers}',
+                            value: '${result.totalQuestions - result.correctAnswers}',
                             label: 'Salah',
                             color: AppColors.error,
                           ),
@@ -183,7 +146,7 @@ class ResultScreen extends StatelessWidget {
                         Expanded(
                           child: _StatCard(
                             icon: Icons.timer,
-                            value: '${timeSpent ~/ 60}m',
+                            value: '${(result.timeSpent / 60).ceil()}m',
                             label: 'Waktu',
                             color: AppColors.info,
                           ),
@@ -197,13 +160,22 @@ class ResultScreen extends StatelessWidget {
                       isFullWidth: true,
                       size: AppButtonSize.large,
                       icon: const Icon(Icons.refresh),
-                      onPressed: () => context.pushReplacement('/quiz'),
+                      onPressed: () async {
+                        ref.read(quizProvider.notifier).reset();
+                        final success = await ref.read(quizProvider.notifier).startSession();
+                        if (success && context.mounted) {
+                          context.pushReplacement('/quiz');
+                        }
+                      },
                     ),
                     const SizedBox(height: AppSpacing.md),
                     AppButton.secondary(
                       text: 'Kembali ke Beranda',
                       isFullWidth: true,
-                      onPressed: () => context.go('/'),
+                      onPressed: () {
+                        ref.read(quizProvider.notifier).reset();
+                        context.go('/');
+                      },
                     ),
                     const SizedBox(height: AppSpacing.xl),
                   ],

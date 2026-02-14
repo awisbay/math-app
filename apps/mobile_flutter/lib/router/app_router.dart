@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../providers/auth_provider.dart';
+import '../providers/quiz_provider.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/register_screen.dart';
 import '../features/home/screens/home_screen.dart';
@@ -17,30 +19,36 @@ part 'app_router.g.dart';
 // Navigation index provider
 final navigationIndexProvider = StateProvider<int>((ref) => 0);
 
-// Auth state provider (placeholder - will be implemented in Phase 2)
-final authStateProvider = StateProvider<bool>((ref) => false);
-
 @riverpod
 GoRouter appRouter(AppRouterRef ref) {
-  final isAuthenticated = ref.watch(authStateProvider);
+  final authState = ref.watch(authProvider);
+  final quizState = ref.watch(quizProvider);
 
   return GoRouter(
     initialLocation: '/',
     debugLogDiagnostics: true,
     redirect: (context, state) {
-      // Route guards will be fully implemented in Phase 2
-      // For now, allow all routes for UI development
+      final isAuthenticated = authState.isAuthenticated;
       final isLoggingIn = state.matchedLocation == '/login' ||
           state.matchedLocation == '/register';
-      
-      // Uncomment when auth is implemented:
-      // if (!isAuthenticated && !isLoggingIn) {
-      //   return '/login';
-      // }
-      // if (isAuthenticated && isLoggingIn) {
-      //   return '/';
-      // }
-      
+      final isInQuiz = state.matchedLocation.startsWith('/quiz');
+
+      // Handle unauthenticated users
+      if (!isAuthenticated && !isLoggingIn) {
+        return '/login';
+      }
+
+      // Handle authenticated users trying to access auth screens
+      if (isAuthenticated && isLoggingIn) {
+        return '/';
+      }
+
+      // Handle quiz navigation - check if there's an active session
+      if (isInQuiz && quizState.session == null && state.matchedLocation != '/quiz/result') {
+        // No active session, redirect to home
+        return '/';
+      }
+
       return null;
     },
     routes: [
@@ -68,11 +76,6 @@ GoRouter appRouter(AppRouterRef ref) {
             builder: (context, state) => const HomeScreen(),
           ),
           GoRoute(
-            path: '/practice',
-            name: 'practice',
-            builder: (context, state) => const HomeScreen(), // Practice starts from home
-          ),
-          GoRoute(
             path: '/progress',
             name: 'progress',
             builder: (context, state) => const ProgressScreen(),
@@ -94,10 +97,7 @@ GoRouter appRouter(AppRouterRef ref) {
       GoRoute(
         path: '/quiz/result',
         name: 'quizResult',
-        builder: (context, state) {
-          final sessionId = state.uri.queryParameters['sessionId'] ?? '';
-          return ResultScreen(sessionId: sessionId);
-        },
+        builder: (context, state) => const ResultScreen(),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(
