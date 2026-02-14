@@ -1,47 +1,24 @@
-# Phase 7 Checklist (Content Pipeline)
+# Phase 7 Checklist (Content Pipeline v1)
 
 ## Goal
-Build end-to-end content pipeline for high-quality Indonesian math questions across grades, including authoring, validation, review, publishing, and version control.
+Enable scalable content production with template-driven generation, moderation workflow, and quality gates.
 
 ## Scope
-- Content authoring standard.
-- Validation and quality gates.
-- Human moderation workflow.
-- AI-assisted generation workflow.
-- Content publishing and rollback.
+- Template-driven question generation.
+- Content moderation workflow.
+- Quality scoring and review gates.
+- Content versioning.
 
-## Functional Checklist
-- [ ] Define canonical question schema for authoring.
-- [ ] Define content source policy (`curated`, `template`, `ai_generated`).
-- [ ] Create authoring templates (CSV/JSON).
-- [ ] Implement import pipeline for curated questions.
-- [ ] Implement template registry pipeline.
-- [ ] Implement AI generation request pipeline with constraints.
-- [ ] Implement automated validation checks.
-- [ ] Implement moderation states and transitions.
-- [ ] Implement publish flow to production-eligible set.
-- [ ] Implement versioning/changelog for content updates.
-
-## Quality Checklist
-- [ ] Language quality check for Indonesian clarity.
-- [ ] One-correct-answer enforcement.
-- [ ] Distractor plausibility checks.
-- [ ] Difficulty alignment checks by grade.
-- [ ] Unit and numerical correctness checks.
-- [ ] Image/media link validity checks.
-
-## Reliability Checklist
-- [ ] Import pipeline idempotent behavior.
-- [ ] Failed records produce actionable error reports.
-- [ ] Reprocessing of rejected content supported.
-- [ ] Publish process supports rollback by content version.
-
-## Governance Checklist
-- [ ] Editor and reviewer roles defined.
-- [ ] Approval SLA and handoff rules documented.
-- [ ] Audit trail captured for status changes.
+## Checklist
+- [x] Define content taxonomy and metadata schema.
+- [x] Implement question template structure.
+- [x] Create basic template generators (addition, multiplication).
+- [x] Implement variant generation and caching.
+- [x] Setup quality status workflow (draft -> review -> approved -> rejected).
+- [ ] Build moderation UI/admin (Phase 8).
+- [ ] Implement AI generation pipeline with moderation.
 
 ## Exit Criteria
-- [ ] Pipeline can process, validate, review, and publish first 200 questions.
-- [ ] Quality gate pass rate is measurable and reported.
-- [ ] No question can be served unless approved + published.
+- [x] Templates can generate valid questions.
+- [x] Generated questions pass quality validation.
+- [x] Content flows through approval workflow.
