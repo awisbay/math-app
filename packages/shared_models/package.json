@@ -1,0 +1,15 @@
+{
+  "name": "@mathapp/shared-models",
+  "version": "0.0.1",
+  "description": "Shared models between API and Mobile",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.1.3"
+  }
+}

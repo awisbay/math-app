@@ -1,0 +1,56 @@
+name: math_app
+version: 0.0.1+1
+publish_to: 'none'
+
+description: Indonesian Math Learning App - Kelas 1-12
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # State Management
+  flutter_riverpod: ^2.4.0
+  riverpod_annotation: ^2.2.0
+  
+  # Navigation
+  go_router: ^12.0.0
+  
+  # HTTP Client
+  dio: ^5.3.0
+  
+  # Local Storage
+  shared_preferences: ^2.2.0
+  flutter_secure_storage: ^9.0.0
+  
+  # Firebase
+  firebase_core: ^2.20.0
+  firebase_auth: ^4.14.0
+  firebase_analytics: ^10.7.0
+  firebase_messaging: ^14.7.0
+  
+  # Utils
+  freezed_annotation: ^2.4.0
+  json_annotation: ^4.8.0
+  equatable: ^2.0.0
+  intl: ^0.18.0
+  
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  build_runner: ^2.4.0
+  freezed: ^2.4.0
+  json_serializable: ^6.7.0
+  riverpod_generator: ^2.3.0
+  custom_lint: ^0.5.0
+  riverpod_lint: ^2.3.0
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/images/
+    - assets/icons/
