@@ -6,6 +6,7 @@ import { FirebaseConfig } from './config/firebase.config';
 import { DatabaseConfig } from './config/database.config';
 import { SharedModule } from './shared/shared.module';
 import { CommonModule } from './common/common.module';
+import { RepositoriesModule } from './repositories/repositories.module';
 import { AuthModule } from './auth/auth.module';
 import { ProfileModule } from './profile/profile.module';
 import { QuizModule } from './quiz/quiz.module';
@@ -33,6 +34,7 @@ import { HealthModule } from './health/health.module';
     ]),
     SharedModule,
     CommonModule,
+    RepositoriesModule,
     HealthModule,
     AuthModule,
     ProfileModule,

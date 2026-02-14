@@ -1,0 +1,68 @@
+version: '3.9'
+
+name: math-app-local
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: math-app-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: math_app
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d math_app"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: math-app-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    container_name: math-app-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - ./services/api/.env.local
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/math_app?schema=public
+      REDIS_URL: redis://redis:6379
+      PORT: 3000
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./services/api:/app
+      - /app/node_modules
+    command: npm run start:dev
+    profiles:
+      - app
+
+volumes:
+  postgres_data:
+  redis_data:

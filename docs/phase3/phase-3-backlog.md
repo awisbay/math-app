@@ -8,32 +8,32 @@
 ## Epic A: Schema Implementation
 
 ### P0
-- [ ] Translate approved schema into Prisma models.
-- [ ] Create initial migration for all core tables.
-- [ ] Add constraints and foreign keys.
-- [ ] Add enum/check constraints for status fields.
+- [x] Translate approved schema into Prisma models.
+- [x] Create initial migration for all core tables.
+- [x] Add constraints and foreign keys.
+- [x] Add enum/check constraints for status fields.
 
 ### P1
-- [ ] Add db-level defaults and triggers for updated timestamps.
-- [ ] Add partial indexes for active question filtering.
+- [x] Add db-level defaults and triggers for updated timestamps.
+- [x] Add partial indexes for active question filtering.
 
 ## Epic B: Seed and Taxonomy
 
 ### P0
-- [ ] Seed topics for grades 1-12.
-- [ ] Seed grade metadata and sample placeholders.
-- [ ] Validate uniqueness for topic code by grade.
+- [x] Seed topics for grades 1-12.
+- [x] Seed grade metadata and sample placeholders.
+- [x] Validate uniqueness for topic code by grade.
 
 ### P1
-- [ ] Add seed verification command.
+- [x] Add seed verification command.
 - [ ] Add taxonomy diff checker to prevent accidental removals.
 
 ## Epic C: Query Performance
 
 ### P0
-- [ ] Add critical indexes for read-heavy paths.
-- [ ] Benchmark key queries with sample dataset.
-- [ ] Optimize anti-repeat lookup query path.
+- [x] Add critical indexes for read-heavy paths.
+- [x] Benchmark key queries with sample dataset.
+- [x] Optimize anti-repeat lookup query path.
 
 ### P1
 - [ ] Add query observability logs for slow SQL.
@@ -42,9 +42,9 @@
 ## Epic D: Data Access Layer
 
 ### P0
-- [ ] Create repository patterns for users/topics/questions/sessions.
-- [ ] Standardize pagination + filtering conventions.
-- [ ] Add transactional utility for session-write operations.
+- [x] Create repository patterns for users/topics/questions/sessions.
+- [x] Standardize pagination + filtering conventions.
+- [x] Add transactional utility for session-write operations.
 
 ### P1
 - [ ] Add caching strategy draft for Phase 4 session generation.
@@ -54,7 +54,7 @@
 ### P0
 - [ ] Migration tests (up/down where supported).
 - [ ] Seed idempotency test.
-- [ ] Integration test for data integrity constraints.
+- [x] Integration test for data integrity constraints.
 
 ### P1
 - [ ] Synthetic load test on question selection query.
