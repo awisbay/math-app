@@ -8,22 +8,22 @@
 ## Epic A: Service Bootstrap
 
 ### P0
-- [ ] Create NestJS project scaffold with module boundaries.
-- [ ] Setup TypeScript strict mode and linting.
-- [ ] Setup Prisma with PostgreSQL and initial migration.
-- [ ] Setup environment config loader with validation.
+- [x] Create NestJS project scaffold with module boundaries.
+- [x] Setup TypeScript strict mode and linting.
+- [x] Setup Prisma with PostgreSQL and initial migration.
+- [x] Setup environment config loader with validation.
 
 ### P1
-- [ ] Add Dockerfile and local compose for DB.
-- [ ] Add make/scripts for common commands.
+- [x] Add Dockerfile and local compose for DB.
+- [x] Add make/scripts for common commands.
 
 ## Epic B: Authentication
 
 ### P0
-- [ ] Implement register endpoint.
-- [ ] Implement login endpoint.
-- [ ] Implement auth guard/token verification.
-- [ ] Add password policy (if custom auth path).
+- [x] Implement register endpoint.
+- [x] Implement login endpoint.
+- [x] Implement auth guard/token verification.
+- [x] Add password policy (if custom auth path).
 
 ### P1
 - [ ] Add refresh token support (if needed).
@@ -35,10 +35,10 @@
 ## Epic C: User Profile + Grade
 
 ### P0
-- [ ] Implement `GET /me`.
-- [ ] Implement `PATCH /me`.
-- [ ] Implement `POST /me/grade-switch`.
-- [ ] Implement age-to-grade default mapping service.
+- [x] Implement `GET /me`.
+- [x] Implement `PATCH /me`.
+- [x] Implement `POST /me/grade-switch`.
+- [x] Implement age-to-grade default mapping service.
 
 ### P1
 - [ ] Add grade-switch audit trail table and endpoint log.
@@ -47,21 +47,21 @@
 ## Epic D: Reliability + Security
 
 ### P0
-- [ ] Standardized API error handler and response shape.
-- [ ] Rate limit auth endpoints.
-- [ ] Add `/health` endpoint.
-- [ ] Add request logging with correlation IDs.
+- [x] Standardized API error handler and response shape.
+- [x] Rate limit auth endpoints.
+- [x] Add `/health` endpoint.
+- [x] Add request logging with correlation IDs.
 
 ### P1
-- [ ] Add `/ready` endpoint for deployment checks.
+- [x] Add `/ready` endpoint for deployment checks.
 - [ ] Add baseline metrics and dashboards.
 
 ## Epic E: Testing + CI
 
 ### P0
-- [ ] Unit tests for mapping logic and validators.
+- [x] Unit tests for mapping logic and validators.
 - [ ] Integration tests for auth/profile/grade-switch endpoints.
-- [ ] CI checks: lint + unit + integration (or smoke integration).
+- [x] CI checks: lint + unit + integration (or smoke integration).
 
 ### P1
 - [ ] Add contract tests for API response schema.

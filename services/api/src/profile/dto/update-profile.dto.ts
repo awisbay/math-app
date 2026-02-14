@@ -1,18 +1,26 @@
-import { IsOptional, IsString, MinLength, IsDateString, IsInt, Min, Max } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  MinLength,
+  IsDateString,
+  IsInt,
+  Min,
+  Max,
+} from 'class-validator';
 
 export class UpdateProfileDto {
   @IsOptional()
-  @IsString()
-  @MinLength(2)
+  @IsString({ message: 'Nama harus berupa string' })
+  @MinLength(2, { message: 'Nama minimal 2 karakter' })
   name?: string;
 
   @IsOptional()
-  @IsDateString()
+  @IsDateString({}, { message: 'Format tanggal lahir tidak valid' })
   birthDate?: string;
 
   @IsOptional()
-  @IsInt()
-  @Min(1)
-  @Max(12)
+  @IsInt({ message: 'Kelas harus berupa angka' })
+  @Min(1, { message: 'Kelas minimal 1' })
+  @Max(12, { message: 'Kelas maksimal 12' })
   currentGrade?: number;
 }

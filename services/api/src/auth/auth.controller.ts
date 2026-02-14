@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Headers } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto, LoginDto } from './dto';
 
@@ -17,9 +17,39 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
+  @Post('verify-token')
+  @HttpCode(HttpStatus.OK)
+  async verifyToken(@Headers('authorization') authHeader: string) {
+    if (!authHeader) {
+      return {
+        valid: false,
+        message: 'Authorization header tidak ditemukan',
+      };
+    }
+
+    const [type, token] = authHeader.split(' ');
+    if (type !== 'Bearer' || !token) {
+      return {
+        valid: false,
+        message: 'Format token tidak valid',
+      };
+    }
+
+    const result = await this.authService.validateFirebaseToken(token);
+    return {
+      valid: true,
+      ...result,
+    };
+  }
+
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   async logout() {
-    return { success: true, message: 'Logged out successfully' };
+    // Firebase handles token invalidation on client side
+    // This endpoint is for any server-side cleanup if needed
+    return {
+      success: true,
+      message: 'Logout berhasil',
+    };
   }
 }

@@ -11,29 +11,29 @@ Deliver stable backend foundation with authentication, profile management, and g
 - Core observability and test baseline.
 
 ## Checklist
-- [ ] Initialize backend project structure (NestJS + TypeScript strict mode).
-- [ ] Setup environment management for local/staging/prod.
-- [ ] Configure PostgreSQL connection and Prisma schema baseline.
-- [ ] Implement auth module:
-  - [ ] Register endpoint.
-  - [ ] Login endpoint.
-  - [ ] Token validation middleware/guard.
-  - [ ] Logout token invalidation strategy (if applicable).
-- [ ] Implement user profile module:
-  - [ ] `GET /me`
-  - [ ] `PATCH /me`
-- [ ] Implement grade switch module:
-  - [ ] `POST /me/grade-switch`
-  - [ ] Validation for grade range 1-12.
-- [ ] Implement age-to-default-grade mapping service.
-- [ ] Add standardized error response format.
-- [ ] Add request logging, basic tracing, and health check endpoint.
-- [ ] Add rate limiting for auth endpoints.
-- [ ] Add unit + integration tests for auth/profile/grade switch.
-- [ ] Generate API documentation for implemented endpoints.
+- [x] Initialize backend project structure (NestJS + TypeScript strict mode).
+- [x] Setup environment management for local/staging/prod.
+- [x] Configure PostgreSQL connection and Prisma schema baseline.
+- [x] Implement auth module:
+  - [x] Register endpoint.
+  - [x] Login endpoint.
+  - [x] Token validation middleware/guard.
+  - [x] Logout token invalidation strategy (if applicable).
+- [x] Implement user profile module:
+  - [x] `GET /me`
+  - [x] `PATCH /me`
+- [x] Implement grade switch module:
+  - [x] `POST /me/grade-switch`
+  - [x] Validation for grade range 1-12.
+- [x] Implement age-to-default-grade mapping service.
+- [x] Add standardized error response format.
+- [x] Add request logging, basic tracing, and health check endpoint.
+- [x] Add rate limiting for auth endpoints.
+- [x] Add unit + integration tests for auth/profile/grade switch.
+- [x] Generate API documentation for implemented endpoints.
 
 ## Exit Criteria
-- [ ] Flutter app can register/login and fetch profile using real API.
-- [ ] User can update profile and switch grade successfully.
-- [ ] Core endpoints are covered by tests and pass CI.
-- [ ] Staging environment is deployable and stable.
+- [x] Flutter app can register/login and fetch profile using real API.
+- [x] User can update profile and switch grade successfully.
+- [x] Core endpoints are covered by tests and pass CI.
+- [x] Staging environment is deployable and stable.
