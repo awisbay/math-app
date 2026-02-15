@@ -9,7 +9,7 @@ import {
 import { ProfileService } from './profile.service';
 import { UpdateProfileDto, SwitchGradeDto } from './dto';
 import { FirebaseAuthGuard } from '../shared/guards/firebase-auth.guard';
-import { CurrentUser, CurrentUserData } from '../shared/decorators/current-user.decorator';
+import { CurrentUser } from '../shared/decorators/current-user.decorator';
 
 @Controller('profile')
 @UseGuards(FirebaseAuthGuard)
@@ -17,40 +17,32 @@ export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
   @Get()
-  async getProfile(@CurrentUser('uid') firebaseUid: string) {
-    // TODO: Map firebase UID to user ID properly
-    // For now, this is a placeholder implementation
-    const user = await this.getUserByFirebaseUid(firebaseUid);
-    return this.profileService.getProfile(user.id);
+  async getProfile(@CurrentUser('userId') userId: string) {
+    const profile = await this.profileService.getProfile(userId);
+    return { success: true, data: profile };
   }
 
   @Patch()
   async updateProfile(
-    @CurrentUser('uid') firebaseUid: string,
+    @CurrentUser('userId') userId: string,
     @Body() updateDto: UpdateProfileDto,
   ) {
-    const user = await this.getUserByFirebaseUid(firebaseUid);
-    return this.profileService.updateProfile(user.id, updateDto);
+    const profile = await this.profileService.updateProfile(userId, updateDto);
+    return { success: true, data: profile };
   }
 
   @Post('switch-grade')
   async switchGrade(
-    @CurrentUser('uid') firebaseUid: string,
+    @CurrentUser('userId') userId: string,
     @Body() switchDto: SwitchGradeDto,
   ) {
-    const user = await this.getUserByFirebaseUid(firebaseUid);
-    return this.profileService.switchGrade(user.id, switchDto);
+    const result = await this.profileService.switchGrade(userId, switchDto);
+    return { success: true, data: result };
   }
 
   @Get('default-grade')
-  async getDefaultGrade(@CurrentUser('uid') firebaseUid: string) {
-    const user = await this.getUserByFirebaseUid(firebaseUid);
-    return this.profileService.getDefaultGradeFromBirthDate(user.id);
-  }
-
-  private async getUserByFirebaseUid(firebaseUid: string) {
-    // This should be replaced with actual user lookup
-    // For now, return a mock user
-    return { id: 'mock-user-id' };
+  async getDefaultGrade(@CurrentUser('userId') userId: string) {
+    const result = await this.profileService.getDefaultGradeFromBirthDate(userId);
+    return { success: true, data: result };
   }
 }

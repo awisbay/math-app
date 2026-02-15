@@ -19,6 +19,9 @@ export interface StreakInfo {
   daysUntilMilestone: number;
 }
 
+// Indonesian timezone offset: UTC+7 (WIB)
+const WIB_OFFSET_MS = 7 * 60 * 60 * 1000;
+
 @Injectable()
 export class StreakService {
   private readonly logger = new Logger(StreakService.name);
@@ -33,7 +36,7 @@ export class StreakService {
     userId: string,
     completedAt: Date,
   ): Promise<StreakUpdateResult> {
-    const today = this.getLocalDate(completedAt);
+    const today = this.getWibDate(completedAt);
 
     const existingActivity = await this.userActivityRepo.getDailyActivity(
       userId,
@@ -44,7 +47,7 @@ export class StreakService {
       this.logger.log(
         `[Streak] User ${userId} already has activity for ${today.toISOString()}`,
       );
-      
+
       const streak = await this.getCurrentStreak(userId);
       return {
         previousStreak: streak.current,
@@ -78,7 +81,7 @@ export class StreakService {
       newStreak = 1;
       isNewStreak = true;
     } else if (streakRecord.lastCompletedAt) {
-      const lastActiveDate = this.getLocalDate(streakRecord.lastCompletedAt);
+      const lastActiveDate = this.getWibDate(streakRecord.lastCompletedAt);
       const yesterday = new Date(today);
       yesterday.setDate(yesterday.getDate() - 1);
 
@@ -148,9 +151,10 @@ export class StreakService {
   }
 
   async checkAndResetMissedStreaks(): Promise<number> {
-    const yesterday = new Date();
+    // Use WIB timezone for determining "yesterday"
+    const nowWib = this.getWibDate(new Date());
+    const yesterday = new Date(nowWib);
     yesterday.setDate(yesterday.getDate() - 1);
-    yesterday.setHours(0, 0, 0, 0);
 
     const streaksToReset = await this.prisma.streak.findMany({
       where: {
@@ -196,22 +200,28 @@ export class StreakService {
   }
 
   async hasCompletedToday(userId: string): Promise<boolean> {
-    const today = this.getLocalDate(new Date());
+    const today = this.getWibDate(new Date());
     const activity = await this.userActivityRepo.getDailyActivity(userId, today);
     return activity !== null && activity.completedSessions > 0;
   }
 
-  private getLocalDate(date: Date): Date {
-    const localDate = new Date(date);
-    localDate.setHours(0, 0, 0, 0);
-    return localDate;
+  /**
+   * Convert a UTC date to the start of day in WIB (Asia/Jakarta, UTC+7).
+   * Returns a Date object representing midnight WIB as a UTC timestamp.
+   */
+  private getWibDate(date: Date): Date {
+    // Shift to WIB, then truncate to midnight
+    const wibTime = date.getTime() + WIB_OFFSET_MS;
+    const wibDay = new Date(wibTime);
+    wibDay.setUTCHours(0, 0, 0, 0);
+    return wibDay;
   }
 
   private isSameDay(date1: Date, date2: Date): boolean {
     return (
-      date1.getFullYear() === date2.getFullYear() &&
-      date1.getMonth() === date2.getMonth() &&
-      date1.getDate() === date2.getDate()
+      date1.getUTCFullYear() === date2.getUTCFullYear() &&
+      date1.getUTCMonth() === date2.getUTCMonth() &&
+      date1.getUTCDate() === date2.getUTCDate()
     );
   }
 

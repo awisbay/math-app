@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
@@ -16,20 +15,18 @@ class QuizScreen extends ConsumerStatefulWidget {
 }
 
 class _QuizScreenState extends ConsumerState<QuizScreen> {
+  bool _hasNavigatedToResult = false;
+
   @override
   void initState() {
     super.initState();
-    // Set landscape orientation for quiz (optional)
-    // SystemChrome.setPreferredOrientations([
-    //   DeviceOrientation.portraitUp,
-    // ]);
-  }
-
-  @override
-  void dispose() {
-    // Reset orientation
-    // SystemChrome.setPreferredOrientations(DeviceOrientation.values);
-    super.dispose();
+    // Listen for quiz completion and navigate to result
+    ref.listenManual(quizProvider.select((s) => s.result), (previous, next) {
+      if (next != null && !_hasNavigatedToResult) {
+        _hasNavigatedToResult = true;
+        context.pushReplacement('/quiz/result');
+      }
+    });
   }
 
   @override
@@ -43,19 +40,15 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
       );
     }
 
-    // Check if quiz is completed
-    if (quizState.result != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        context.pushReplacement('/quiz/result');
-      });
-    }
+    final progress =
+        (quizState.currentQuestionIndex + 1) / quizState.totalQuestions;
 
-    final progress = (quizState.currentQuestionIndex + 1) / quizState.totalQuestions;
-
-    return WillPopScope(
-      onWillPop: () async {
-        _showExitConfirmation();
-        return false;
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) {
+          _showExitConfirmation();
+        }
       },
       child: Scaffold(
         backgroundColor: AppColors.background,
@@ -79,7 +72,8 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                   value: progress,
                   minHeight: 4,
                   backgroundColor: AppColors.surfaceVariant,
-                  valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                  valueColor:
+                      const AlwaysStoppedAnimation<Color>(AppColors.primary),
                 ),
               ),
             ],
@@ -116,7 +110,9 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                                 vertical: AppSpacing.xs,
                               ),
                               decoration: BoxDecoration(
-                                color: _getDifficultyColor(currentQuestion.difficulty).withOpacity(0.1),
+                                color: _getDifficultyColor(
+                                        currentQuestion.difficulty)
+                                    .withOpacity(0.1),
                                 borderRadius: AppRadius.chip,
                               ),
                               child: Text(
@@ -124,7 +120,8 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
-                                  color: _getDifficultyColor(currentQuestion.difficulty),
+                                  color: _getDifficultyColor(
+                                      currentQuestion.difficulty),
                                 ),
                               ),
                             ),
@@ -132,10 +129,13 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                             // Question text
                             Text(
                               currentQuestion.question,
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                height: 1.5,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleLarge
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.5,
+                                  ),
                             ),
                           ],
                         ),
@@ -145,7 +145,8 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                       ...currentQuestion.options.asMap().entries.map((entry) {
                         final index = entry.key;
                         final option = entry.value;
-                        final isSelected = quizState.answers[currentQuestion.id] == index;
+                        final isSelected =
+                            quizState.answers[currentQuestion.id] == index;
 
                         return Padding(
                           padding: const EdgeInsets.only(bottom: AppSpacing.md),
@@ -187,20 +188,24 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                         const SizedBox(width: 100),
                       const Spacer(),
                       // Next/Submit button
-                      quizState.isLastQuestion
-                          ? AppButton.primary(
-                              text: quizState.isSubmitting ? 'Menyimpan...' : 'Selesai',
-                              isLoading: quizState.isSubmitting,
-                              onPressed: quizState.answeredCount < quizState.totalQuestions
+                      if (quizState.isLastQuestion)
+                        AppButton.primary(
+                          text: quizState.isSubmitting
+                              ? 'Menyimpan...'
+                              : 'Selesai',
+                          isLoading: quizState.isSubmitting,
+                          onPressed:
+                              quizState.answeredCount < quizState.totalQuestions
                                   ? () => _showIncompleteWarning()
                                   : () => _submitQuiz(),
-                            )
-                          : AppButton.primary(
-                              text: 'Selanjutnya',
-                              onPressed: () {
-                                ref.read(quizProvider.notifier).nextQuestion();
-                              },
-                            ),
+                        )
+                      else
+                        AppButton.primary(
+                          text: 'Selanjutnya',
+                          onPressed: () {
+                            ref.read(quizProvider.notifier).nextQuestion();
+                          },
+                        ),
                     ],
                   ),
                 ),
@@ -283,7 +288,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
 
   Future<void> _submitQuiz() async {
     final success = await ref.read(quizProvider.notifier).submitSession();
-    
+
     if (success && mounted) {
       context.pushReplacement('/quiz/result');
     }
@@ -311,13 +316,14 @@ class _TimerBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final minutes = seconds ~/ 60;
     final remainingSeconds = seconds % 60;
-    final timeString = 
+    final timeString =
         '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
 
     // Determine color based on remaining time
     Color color = AppColors.timerNormal;
-    if (seconds < 60) color = AppColors.timerCritical;
-    else if (seconds < 180) color = AppColors.timerWarning;
+    if (seconds < 60) {
+      color = AppColors.timerCritical;
+    } else if (seconds < 180) color = AppColors.timerWarning;
 
     return Container(
       padding: const EdgeInsets.symmetric(

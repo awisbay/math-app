@@ -162,7 +162,7 @@ model Question {
   reviewedAt    DateTime?           @map("reviewed_at")
 
   @@map("questions")
-  @@index([grade, topicId, difficulty, qualityStatus, isActive: Boolean])
+  @@index([grade, topicId, difficulty, qualityStatus])
   @@index([sourceType, qualityStatus])
   @@index([createdAt])
 }

@@ -27,6 +27,7 @@ export class SessionRepository {
         sessionQuestions: {
           include: {
             answer: true,
+            question: { select: { topicId: true } },
           },
           orderBy: { ordinal: 'asc' },
         },
@@ -76,8 +77,7 @@ export class SessionRepository {
   }
 
   async count(filter: SessionFilter): Promise<number> {
-    const where = this.buildWhereClause(filter);
-    return this.prisma.session.count({ where });
+    return this.prisma.session.count({ where: this.buildWhereClause(filter) });
   }
 
   async create(data: CreateSessionData): Promise<Session> {
@@ -173,13 +173,20 @@ export class SessionRepository {
     isCorrect: boolean;
     timeSpentSeconds: number;
   }): Promise<void> {
-    await this.prisma.sessionAnswer.create({
-      data: {
+    await this.prisma.sessionAnswer.upsert({
+      where: { sessionQuestionId: data.sessionQuestionId },
+      create: {
         sessionQuestionId: data.sessionQuestionId,
         userId: data.userId,
         selectedOption: data.selectedOption,
         isCorrect: data.isCorrect,
         timeSpentSeconds: data.timeSpentSeconds,
+      },
+      update: {
+        selectedOption: data.selectedOption,
+        isCorrect: data.isCorrect,
+        timeSpentSeconds: data.timeSpentSeconds,
+        answeredAt: new Date(),
       },
     });
   }
@@ -189,18 +196,19 @@ export class SessionRepository {
     completedSessions: number;
     averageScore: number;
   }> {
-    const result = await this.prisma.session.aggregate({
-      where: { userId },
-      _count: { id: true },
-      _avg: { score: true },
-    });
-
-    const completedCount = await this.prisma.session.count({
-      where: {
-        userId,
-        status: SessionStatus.COMPLETED,
-      },
-    });
+    const [result, completedCount] = await Promise.all([
+      this.prisma.session.aggregate({
+        where: { userId },
+        _count: { id: true },
+        _avg: { score: true },
+      }),
+      this.prisma.session.count({
+        where: {
+          userId,
+          status: SessionStatus.COMPLETED,
+        },
+      }),
+    ]);
 
     return {
       totalSessions: result._count.id,
@@ -210,17 +218,11 @@ export class SessionRepository {
   }
 
   private buildWhereClause(filter: SessionFilter): Prisma.SessionWhereInput {
-    const where: Prisma.SessionWhereInput = {};
-
-    if (filter.userId) {
-      where.userId = filter.userId;
-    }
-    if (filter.grade !== undefined) {
-      where.grade = filter.grade;
-    }
-    if (filter.status) {
-      where.status = filter.status;
-    }
+    const where: Prisma.SessionWhereInput = {
+      ...(filter.userId && { userId: filter.userId }),
+      ...(filter.grade !== undefined && { grade: filter.grade }),
+      ...(filter.status && { status: filter.status }),
+    };
 
     return where;
   }

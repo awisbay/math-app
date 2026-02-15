@@ -108,7 +108,7 @@ class AppButton extends StatelessWidget {
     final colors = _getColors();
     final dimensions = _getDimensions();
 
-    Widget buttonContent = Row(
+    final Widget buttonContent = Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -162,7 +162,8 @@ class AppButton extends StatelessWidget {
         border: colors.border != null
             ? Border.all(color: colors.border!, width: 1.5)
             : null,
-        boxShadow: onPressed != null && !isLoading ? colors.shadow : AppShadows.none,
+        boxShadow:
+            onPressed != null && !isLoading ? colors.shadow : AppShadows.none,
       ),
       child: Material(
         color: Colors.transparent,
@@ -187,26 +188,39 @@ class AppButton extends StatelessWidget {
     switch (variant) {
       case AppButtonVariant.primary:
         return _ButtonColors(
-          background: isDisabled ? AppColors.primary.withOpacity(0.5) : AppColors.primary,
+          background: isDisabled
+              ? AppColors.primary.withOpacity(0.5)
+              : AppColors.primary,
           foreground: AppColors.onPrimary,
-          shadow: isDisabled ? AppShadows.none : AppShadows.primary(AppColors.primary),
+          shadow: isDisabled
+              ? AppShadows.none
+              : AppShadows.primary(AppColors.primary),
         );
       case AppButtonVariant.secondary:
         return _ButtonColors(
-          background: isDisabled ? AppColors.surfaceVariant.withOpacity(0.5) : AppColors.surface,
-          foreground: isDisabled ? AppColors.onSurfaceVariant.withOpacity(0.5) : AppColors.primary,
-          border: isDisabled ? AppColors.onSurfaceVariant.withOpacity(0.2) : AppColors.primary,
+          background: isDisabled
+              ? AppColors.surfaceVariant.withOpacity(0.5)
+              : AppColors.surface,
+          foreground: isDisabled
+              ? AppColors.onSurfaceVariant.withOpacity(0.5)
+              : AppColors.primary,
+          border: isDisabled
+              ? AppColors.onSurfaceVariant.withOpacity(0.2)
+              : AppColors.primary,
           shadow: AppShadows.none,
         );
       case AppButtonVariant.ghost:
         return _ButtonColors(
           background: Colors.transparent,
-          foreground: isDisabled ? AppColors.onSurfaceVariant.withOpacity(0.5) : AppColors.primary,
+          foreground: isDisabled
+              ? AppColors.onSurfaceVariant.withOpacity(0.5)
+              : AppColors.primary,
           shadow: AppShadows.none,
         );
       case AppButtonVariant.danger:
         return _ButtonColors(
-          background: isDisabled ? AppColors.error.withOpacity(0.5) : AppColors.error,
+          background:
+              isDisabled ? AppColors.error.withOpacity(0.5) : AppColors.error,
           foreground: AppColors.onError,
           shadow: isDisabled ? AppShadows.none : AppShadows.error,
         );

@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UnprocessableEntityException } from '@nestjs/common';
 import { QuestionRepository } from '../../repositories/question.repository';
 import { UserActivityRepository } from '../../repositories/user-activity.repository';
 import { Question, QualityStatus } from '@prisma/client';
@@ -161,9 +161,10 @@ export class QuestionSelectionService {
     );
 
     if (selected.length < selectedPolicy.totalQuestions) {
-      throw new Error(
-        `INSUFFICIENT_POOL: Only ${selected.length} of ${selectedPolicy.totalQuestions} questions available`,
-      );
+      throw new UnprocessableEntityException({
+        code: 'SESSION_POOL_INSUFFICIENT',
+        message: `Soal belum tersedia cukup. Hanya ${selected.length} dari ${selectedPolicy.totalQuestions} soal tersedia.`,
+      });
     }
 
     return selected;

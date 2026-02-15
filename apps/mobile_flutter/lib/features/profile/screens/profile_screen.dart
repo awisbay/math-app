@@ -66,16 +66,16 @@ class ProfileScreen extends StatelessWidget {
                   Text(
                     name,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   // Email
                   Text(
                     email,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.onSurfaceVariant,
-                    ),
+                          color: AppColors.onSurfaceVariant,
+                        ),
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   // Edit Profile Button
@@ -112,7 +112,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.xl),
             // Account Info Section
-            _SectionTitle(title: 'Informasi Akun'),
+            const _SectionTitle(title: 'Informasi Akun'),
             const SizedBox(height: AppSpacing.md),
             AppCard(
               child: Column(
@@ -133,7 +133,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.xl),
             // Settings Section
-            _SectionTitle(title: 'Pengaturan'),
+            const _SectionTitle(title: 'Pengaturan'),
             const SizedBox(height: AppSpacing.md),
             AppCard(
               child: Column(
@@ -175,8 +175,8 @@ class ProfileScreen extends StatelessWidget {
             Text(
               'Math App v1.0.0',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.onSurfaceVariant,
-              ),
+                    color: AppColors.onSurfaceVariant,
+                  ),
             ),
             const SizedBox(height: AppSpacing.xl),
           ],
@@ -251,14 +251,14 @@ class _ProfileStatCard extends StatelessWidget {
           Text(
             value,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+                  fontWeight: FontWeight.bold,
+                ),
           ),
           Text(
             label,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: AppColors.onSurfaceVariant,
-            ),
+                  color: AppColors.onSurfaceVariant,
+                ),
           ),
         ],
       ),
@@ -278,8 +278,8 @@ class _SectionTitle extends StatelessWidget {
       child: Text(
         title,
         style: Theme.of(context).textTheme.titleMedium?.copyWith(
-          fontWeight: FontWeight.w600,
-        ),
+              fontWeight: FontWeight.w600,
+            ),
       ),
     );
   }
@@ -339,7 +339,8 @@ class _SettingsTile extends StatelessWidget {
       leading: Icon(icon, color: AppColors.primary),
       title: Text(title),
       subtitle: Text(subtitle),
-      trailing: const Icon(Icons.chevron_right, color: AppColors.onSurfaceVariant),
+      trailing:
+          const Icon(Icons.chevron_right, color: AppColors.onSurfaceVariant),
       onTap: onTap,
     );
   }
@@ -373,8 +374,8 @@ class EditProfileSheet extends StatelessWidget {
           Text(
             'Edit Profil',
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+                  fontWeight: FontWeight.bold,
+                ),
           ),
           const SizedBox(height: AppSpacing.xl),
           AppTextField.name(

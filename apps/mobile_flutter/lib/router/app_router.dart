@@ -1,33 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../providers/auth_provider.dart';
-import '../providers/quiz_provider.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/register_screen.dart';
 import '../features/home/screens/home_screen.dart';
 import '../features/home/screens/main_shell.dart';
-import '../features/quiz/screens/quiz_screen.dart';
-import '../features/quiz/screens/result_screen.dart';
 import '../features/profile/screens/profile_screen.dart';
 import '../features/progress/screens/progress_screen.dart';
-
-part 'app_router.g.dart';
+import '../features/quiz/screens/quiz_screen.dart';
+import '../features/quiz/screens/result_screen.dart';
+import '../providers/auth_provider.dart';
+import '../providers/quiz_provider.dart';
 
 // Navigation index provider
 final navigationIndexProvider = StateProvider<int>((ref) => 0);
 
-@riverpod
-GoRouter appRouter(AppRouterRef ref) {
-  final authState = ref.watch(authProvider);
-  final quizState = ref.watch(quizProvider);
+/// A [ChangeNotifier] that triggers router refresh when auth or quiz state changes.
+class _RouterRefreshNotifier extends ChangeNotifier {
+  _RouterRefreshNotifier(Ref ref) {
+    ref.listen(authProvider, (_, __) => notifyListeners());
+    ref.listen(quizProvider, (_, __) => notifyListeners());
+  }
+}
+
+final appRouterProvider = Provider<GoRouter>((ref) {
+  final refreshNotifier = _RouterRefreshNotifier(ref);
 
   return GoRouter(
     initialLocation: '/',
     debugLogDiagnostics: true,
+    refreshListenable: refreshNotifier,
     redirect: (context, state) {
+      final authState = ref.read(authProvider);
+      final quizState = ref.read(quizProvider);
       final isAuthenticated = authState.isAuthenticated;
       final isLoggingIn = state.matchedLocation == '/login' ||
           state.matchedLocation == '/register';
@@ -44,7 +50,9 @@ GoRouter appRouter(AppRouterRef ref) {
       }
 
       // Handle quiz navigation - check if there's an active session
-      if (isInQuiz && quizState.session == null && state.matchedLocation != '/quiz/result') {
+      if (isInQuiz &&
+          quizState.session == null &&
+          state.matchedLocation != '/quiz/result') {
         // No active session, redirect to home
         return '/';
       }
@@ -127,4 +135,4 @@ GoRouter appRouter(AppRouterRef ref) {
       ),
     ),
   );
-}
+});

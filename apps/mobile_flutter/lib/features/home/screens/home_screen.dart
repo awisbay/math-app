@@ -42,20 +42,26 @@ class HomeScreen extends ConsumerWidget {
                           children: [
                             Text(
                               'Selamat Datang! 👋',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: AppColors.onSurfaceVariant,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color: AppColors.onSurfaceVariant,
+                                  ),
                             ),
                             const SizedBox(height: AppSpacing.xs),
                             Text(
                               user?.name ?? 'Pengguna',
-                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                             ),
                           ],
                         ),
-                        StreakBadge(streak: 5), // TODO: Get from API
+                        StreakBadge(streak: user?.currentStreak ?? 0),
                       ],
                     ),
                     const SizedBox(height: AppSpacing.xl),
@@ -87,7 +93,7 @@ class HomeScreen extends ConsumerWidget {
                       ),
                       _StatItem(
                         icon: Icons.trending_up,
-                        value: '85%', // TODO: Get from API
+                        value: '${(user?.accuracy ?? 0).round()}%',
                         label: 'Akurasi',
                         color: AppColors.info,
                       ),
@@ -111,12 +117,14 @@ class HomeScreen extends ConsumerWidget {
                       children: [
                         Text(
                           'Kelas Saat Ini',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style:
+                              Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
                         ),
                         TextButton(
-                          onPressed: () => _showGradeSelector(context, ref, user?.currentGrade ?? 1),
+                          onPressed: () => _showGradeSelector(
+                              context, ref, user?.currentGrade ?? 1),
                           child: const Text('Ubah'),
                         ),
                       ],
@@ -125,7 +133,8 @@ class HomeScreen extends ConsumerWidget {
                     GradeChip(
                       grade: user?.currentGrade ?? 1,
                       isSelected: true,
-                      onTap: () => _showGradeSelector(context, ref, user?.currentGrade ?? 1),
+                      onTap: () => _showGradeSelector(
+                          context, ref, user?.currentGrade ?? 1),
                       showLabel: true,
                     ),
                   ],
@@ -177,43 +186,38 @@ class HomeScreen extends ConsumerWidget {
                 child: Text(
                   'Topik Populer',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
               ),
             ),
 
             const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
 
-            // Topics List
+            // Topics placeholder - will be populated when topics API is available
             SliverPadding(
               padding: AppSpacing.paddingHorizontal,
-              sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  TopicCard(
-                    title: 'Penjumlahan & Pengurangan',
-                    icon: Icons.add,
-                    color: AppColors.gradeColors[0],
-                    questionCount: 45,
-                    onTap: () {},
+              sliver: SliverToBoxAdapter(
+                child: AppCard(
+                  padding: const EdgeInsets.all(AppSpacing.xl),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.auto_stories,
+                        size: 48,
+                        color: AppColors.onSurfaceVariant.withOpacity(0.4),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      Text(
+                        'Topik akan tampil setelah Anda menyelesaikan latihan pertama',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: AppColors.onSurfaceVariant,
+                            ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: AppSpacing.md),
-                  TopicCard(
-                    title: 'Perkalian & Pembagian',
-                    icon: Icons.close,
-                    color: AppColors.gradeColors[2],
-                    questionCount: 32,
-                    onTap: () {},
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  TopicCard(
-                    title: 'Pecahan',
-                    icon: Icons.pie_chart_outline,
-                    color: AppColors.gradeColors[4],
-                    questionCount: 28,
-                    onTap: () {},
-                  ),
-                ]),
+                ),
               ),
             ),
 
@@ -226,13 +230,14 @@ class HomeScreen extends ConsumerWidget {
 
   Future<void> _startSession(BuildContext context, WidgetRef ref) async {
     final success = await ref.read(quizProvider.notifier).startSession();
-    
+
     if (success && context.mounted) {
       context.push('/quiz');
     }
   }
 
-  void _showGradeSelector(BuildContext context, WidgetRef ref, int currentGrade) {
+  void _showGradeSelector(
+      BuildContext context, WidgetRef ref, int currentGrade) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -242,7 +247,8 @@ class HomeScreen extends ConsumerWidget {
         onGradeSelected: (grade) async {
           Navigator.pop(context);
           if (grade != currentGrade) {
-            final success = await ref.read(authProvider.notifier).switchGrade(grade);
+            final success =
+                await ref.read(authProvider.notifier).switchGrade(grade);
             if (success && context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Kelas berhasil diubah ke $grade')),
@@ -285,21 +291,21 @@ class _StatItem extends StatelessWidget {
         Text(
           value,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+                fontWeight: FontWeight.bold,
+              ),
         ),
         Text(
           label,
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: AppColors.onSurfaceVariant,
-          ),
+                color: AppColors.onSurfaceVariant,
+              ),
         ),
       ],
     );
   }
 }
 
-class GradeSelectorSheet extends StatelessWidget {
+class GradeSelectorSheet extends StatefulWidget {
   final int selectedGrade;
   final ValueChanged<int> onGradeSelected;
 
@@ -310,67 +316,70 @@ class GradeSelectorSheet extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    return StatefulBuilder(
-      builder: (context, setState) {
-        int tempGrade = selectedGrade;
+  State<GradeSelectorSheet> createState() => _GradeSelectorSheetState();
+}
 
-        return Container(
-          decoration: const BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.vertical(
-              top: Radius.circular(AppRadius.xxl),
+class _GradeSelectorSheetState extends State<GradeSelectorSheet> {
+  late int _tempGrade;
+
+  @override
+  void initState() {
+    super.initState();
+    _tempGrade = widget.selectedGrade;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppRadius.xxl),
+        ),
+      ),
+      padding: const EdgeInsets.all(AppSpacing.xl),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: AppColors.onSurfaceVariant.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(2),
             ),
           ),
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.onSurfaceVariant.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              Text(
-                'Pilih Kelas',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+          const SizedBox(height: AppSpacing.xl),
+          Text(
+            'Pilih Kelas',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                'Pilih kelas yang sesuai dengan tingkat pendidikanmu',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            'Pilih kelas yang sesuai dengan tingkat pendidikanmu',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppColors.onSurfaceVariant,
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              StatefulBuilder(
-                builder: (context, setLocalState) {
-                  return GradeGrid(
-                    selectedGrade: tempGrade,
-                    onGradeSelected: (grade) {
-                      setLocalState(() => tempGrade = grade);
-                    },
-                  );
-                },
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              AppButton.primary(
-                text: 'Pilih Kelas',
-                isFullWidth: true,
-                onPressed: () => onGradeSelected(tempGrade),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-            ],
+            textAlign: TextAlign.center,
           ),
-        );
-      },
+          const SizedBox(height: AppSpacing.xl),
+          GradeGrid(
+            selectedGrade: _tempGrade,
+            onGradeSelected: (grade) {
+              setState(() => _tempGrade = grade);
+            },
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          AppButton.primary(
+            text: 'Pilih Kelas',
+            isFullWidth: true,
+            onPressed: () => widget.onGradeSelected(_tempGrade),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+        ],
+      ),
     );
   }
 }

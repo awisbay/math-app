@@ -34,8 +34,8 @@ class ProgressScreen extends StatelessWidget {
                   Text(
                     'Ringkasan',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   Row(
@@ -84,7 +84,7 @@ class ProgressScreen extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.xl),
             // Streak Card
-            StreakCard(
+            const StreakCard(
               currentStreak: currentStreak,
               longestStreak: longestStreak,
             ),
@@ -93,11 +93,11 @@ class ProgressScreen extends StatelessWidget {
             Text(
               'Progress per Kelas',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
             const SizedBox(height: AppSpacing.md),
-            _GradeProgressCard(
+            const _GradeProgressCard(
               grade: 5,
               sessions: 30,
               accuracy: 85.2,
@@ -105,7 +105,7 @@ class ProgressScreen extends StatelessWidget {
               isCurrent: true,
             ),
             const SizedBox(height: AppSpacing.md),
-            _GradeProgressCard(
+            const _GradeProgressCard(
               grade: 4,
               sessions: 15,
               accuracy: 82.0,
@@ -117,8 +117,8 @@ class ProgressScreen extends StatelessWidget {
             Text(
               'Progress per Topik',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
             const SizedBox(height: AppSpacing.md),
             AppCard(
@@ -162,8 +162,8 @@ class ProgressScreen extends StatelessWidget {
                 Text(
                   'Sesi Terakhir',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                        fontWeight: FontWeight.w600,
+                      ),
                 ),
                 TextButton(
                   onPressed: () {},
@@ -172,7 +172,7 @@ class ProgressScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: AppSpacing.md),
-            _RecentSessionCard(
+            const _RecentSessionCard(
               date: 'Hari ini',
               grade: 5,
               score: 8,
@@ -180,7 +180,7 @@ class ProgressScreen extends StatelessWidget {
               isToday: true,
             ),
             const SizedBox(height: AppSpacing.md),
-            _RecentSessionCard(
+            const _RecentSessionCard(
               date: 'Kemarin',
               grade: 5,
               score: 9,
@@ -188,7 +188,7 @@ class ProgressScreen extends StatelessWidget {
               isToday: false,
             ),
             const SizedBox(height: AppSpacing.md),
-            _RecentSessionCard(
+            const _RecentSessionCard(
               date: '2 hari lalu',
               grade: 5,
               score: 7,
@@ -237,14 +237,14 @@ class _StatItem extends StatelessWidget {
               Text(
                 value,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               Text(
                 label,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.onSurfaceVariant,
-                ),
+                      color: AppColors.onSurfaceVariant,
+                    ),
               ),
             ],
           ),
@@ -305,8 +305,8 @@ class _GradeProgressCard extends StatelessWidget {
                     Text(
                       'Kelas $grade',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
                     if (isCurrent) ...[
                       const SizedBox(width: AppSpacing.sm),
@@ -335,8 +335,8 @@ class _GradeProgressCard extends StatelessWidget {
                 Text(
                   '$sessions sesi • Skor rata-rata $avgScore',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.onSurfaceVariant,
-                  ),
+                        color: AppColors.onSurfaceVariant,
+                      ),
                 ),
               ],
             ),
@@ -347,9 +347,9 @@ class _GradeProgressCard extends StatelessWidget {
               Text(
                 '${accuracy.toStringAsFixed(1)}%',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.success,
-                ),
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.success,
+                    ),
               ),
               const SizedBox(height: AppSpacing.xs),
               SizedBox(
@@ -413,8 +413,8 @@ class _TopicProgressTile extends StatelessWidget {
                 Text(
                   '$sessions sesi',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.onSurfaceVariant,
-                  ),
+                        color: AppColors.onSurfaceVariant,
+                      ),
                 ),
               ],
             ),
@@ -422,13 +422,13 @@ class _TopicProgressTile extends StatelessWidget {
           Text(
             '$accuracy%',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: accuracy >= 80
-                  ? AppColors.success
-                  : accuracy >= 60
-                      ? AppColors.warning
-                      : AppColors.error,
-            ),
+                  fontWeight: FontWeight.bold,
+                  color: accuracy >= 80
+                      ? AppColors.success
+                      : accuracy >= 60
+                          ? AppColors.warning
+                          : AppColors.error,
+                ),
           ),
         ],
       ),
@@ -515,8 +515,8 @@ class _RecentSessionCard extends StatelessWidget {
                 Text(
                   'Kelas $grade • $percentage% akurasi',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppColors.onSurfaceVariant,
-                  ),
+                        color: AppColors.onSurfaceVariant,
+                      ),
                 ),
               ],
             ),
