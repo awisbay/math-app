@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 
@@ -38,12 +38,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // API Versioning - DISABLED for health check fix
-  // app.enableVersioning({
-  //   type: VersioningType.URI,
-  //   defaultVersion: '1',
-  // });
-
   // Global API prefix
   const apiPrefix = configService.get('API_PREFIX', 'api/v1');
   app.setGlobalPrefix(apiPrefix);
@@ -51,8 +45,8 @@ async function bootstrap() {
   const port = configService.get<number>('PORT', 3000);
 
   await app.listen(port);
-  console.log(`🚀 Application is running on: http://localhost:${port}/api/v1`);
-  console.log(`📚 Health check: http://localhost:${port}/api/v1/health`);
+  console.log(`Application is running on: http://localhost:${port}/${apiPrefix}`);
+  console.log(`Health check: http://localhost:${port}/${apiPrefix}/health`);
 }
 
 bootstrap();
