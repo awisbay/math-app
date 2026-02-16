@@ -12,6 +12,12 @@ build/
 .env
 .env.local
 .env.*.local
+.env.dev
+.env.prod
+
+# Firebase config files (contain API keys)
+google-services.json
+GoogleService-Info.plist
 
 # IDE
 .idea/
