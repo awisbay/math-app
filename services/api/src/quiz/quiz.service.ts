@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../common/prisma.service';
-import { SubmitAnswersDto } from './dto';
+import { SubmitAnswerDto } from './dto';
 
 @Injectable()
 export class QuizService {
@@ -28,7 +28,7 @@ export class QuizService {
     };
   }
 
-  async submitAnswers(sessionId: string, dto: SubmitAnswersDto) {
+  async submitAnswers(sessionId: string, dto: SubmitAnswerDto) {
     // Implementation in Phase 2
     return {
       success: true,

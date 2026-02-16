@@ -17,35 +17,35 @@ datasource db {
 // ============================================
 
 enum QuestionSourceType {
-  CURATED       @map("curated")
-  TEMPLATE      @map("template")
-  AI_GENERATED  @map("ai_generated")
+  CURATED      @map("curated")
+  TEMPLATE     @map("template")
+  AI_GENERATED @map("ai_generated")
 
   @@map("question_source_type")
 }
 
 enum QualityStatus {
-  DRAFT     @map("draft")
-  REVIEW    @map("review")
-  APPROVED  @map("approved")
-  REJECTED  @map("rejected")
-  ARCHIVED  @map("archived")
+  DRAFT    @map("draft")
+  REVIEW   @map("review")
+  APPROVED @map("approved")
+  REJECTED @map("rejected")
+  ARCHIVED @map("archived")
 
   @@map("quality_status")
 }
 
 enum SessionStatus {
-  ACTIVE      @map("active")
-  COMPLETED   @map("completed")
-  EXPIRED     @map("expired")
-  ABANDONED   @map("abandoned")
+  ACTIVE    @map("active")
+  COMPLETED @map("completed")
+  EXPIRED   @map("expired")
+  ABANDONED @map("abandoned")
 
   @@map("session_status")
 }
 
 enum QuestionRefType {
-  QUESTION  @map("question")
-  VARIANT   @map("variant")
+  QUESTION @map("question")
+  VARIANT  @map("variant")
 
   @@map("question_ref_type")
 }
@@ -55,49 +55,49 @@ enum QuestionRefType {
 // ============================================
 
 model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  name          String
-  birthDate     DateTime? @map("birth_date")
-  currentGrade  Int       @map("current_grade")
-  firebaseUid   String?   @unique @map("firebase_uid")
-  
-  // Relations
-  sessions          Session[]
-  sessionAnswers    SessionAnswer[]
-  progress          Progress?
-  streak            Streak?
-  userGrades        UserGrade[]
-  questionHistory   UserQuestionHistory[]
-  dailyActivity     UserDailyActivity[]
-  topicMastery      UserTopicMastery[]
-  
-  // Timestamps
-  createdAt     DateTime  @default(now()) @map("created_at")
-  updatedAt     DateTime  @updatedAt @map("updated_at")
+  id           String    @id @default(uuid())
+  email        String    @unique
+  name         String
+  birthDate    DateTime? @map("birth_date")
+  currentGrade Int       @map("current_grade")
+  firebaseUid  String?   @unique @map("firebase_uid")
 
-  @@map("users")
+  // Relations
+  sessions        Session[]
+  sessionAnswers  SessionAnswer[]
+  progress        Progress?
+  streak          Streak?
+  userGrades      UserGrade[]
+  questionHistory UserQuestionHistory[]
+  dailyActivity   UserDailyActivity[]
+  topicMastery    UserTopicMastery[]
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
   @@index([firebaseUid])
   @@index([currentGrade])
+  @@map("users")
 }
 
 model UserGrade {
-  id          String    @id @default(uuid())
-  userId      String    @map("user_id")
-  grade       Int
-  isActive    Boolean   @default(false) @map("is_active")
-  unlockedAt  DateTime  @default(now()) @map("unlocked_at")
-  
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  grade      Int
+  isActive   Boolean  @default(false) @map("is_active")
+  unlockedAt DateTime @default(now()) @map("unlocked_at")
+
   // Relations
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   // Timestamps
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([userId, grade])
-  @@map("user_grades")
   @@index([userId, isActive])
+  @@map("user_grades")
 }
 
 // ============================================
@@ -105,119 +105,119 @@ model UserGrade {
 // ============================================
 
 model Topic {
-  id                  String    @id @default(uuid())
-  grade               Int
-  code                String
-  nameId              String    @map("name_id")
-  nameEn              String?   @map("name_en")
-  description         String?
-  sortOrder           Int       @default(0) @map("sort_order")
-  difficultyBaseline  Int       @default(3) @map("difficulty_baseline")
-  isActive            Boolean   @default(true) @map("is_active")
-  
+  id                 String  @id @default(uuid())
+  grade              Int
+  code               String
+  nameId             String  @map("name_id")
+  nameEn             String? @map("name_en")
+  description        String?
+  sortOrder          Int     @default(0) @map("sort_order")
+  difficultyBaseline Int     @default(3) @map("difficulty_baseline")
+  isActive           Boolean @default(true) @map("is_active")
+
   // Relations
-  questions           Question[]
-  templates           QuestionTemplate[]
-  topicMastery        UserTopicMastery[]
-  
+  questions    Question[]
+  templates    QuestionTemplate[]
+  topicMastery UserTopicMastery[]
+
   // Timestamps
-  createdAt           DateTime  @default(now()) @map("created_at")
-  updatedAt           DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([grade, code])
-  @@map("topics")
   @@index([grade, isActive])
   @@index([code])
+  @@map("topics")
 }
 
 model Question {
-  id            String              @id @default(uuid())
+  id            String             @id @default(uuid())
   grade         Int
-  topicId       String              @map("topic_id")
-  type          String              @default("multiple_choice")
-  difficulty    Int                 @default(3)
-  sourceType    QuestionSourceType  @map("source_type")
-  qualityStatus QualityStatus       @default(DRAFT) @map("quality_status")
-  
+  topicId       String             @map("topic_id")
+  type          String             @default("multiple_choice")
+  difficulty    Int                @default(3)
+  sourceType    QuestionSourceType @map("source_type")
+  qualityStatus QualityStatus      @default(DRAFT) @map("quality_status")
+
   // Content
   question      String
   options       String[]
-  correctAnswer Int                 @map("correct_answer")
+  correctAnswer Int      @map("correct_answer")
   explanation   String?
-  
-  // Metadata
-  timeLimit     Int                 @default(90) @map("time_limit")
-  tags          String[]
-  
-  // Relations
-  topic         Topic               @relation(fields: [topicId], references: [id])
-  sessionQuestions SessionQuestion[]
-  questionHistory UserQuestionHistory[]
-  
-  // Timestamps & Audit
-  createdAt     DateTime            @default(now()) @map("created_at")
-  updatedAt     DateTime            @updatedAt @map("updated_at")
-  createdBy     String?             @map("created_by")
-  reviewedBy    String?             @map("reviewed_by")
-  reviewedAt    DateTime?           @map("reviewed_at")
 
-  @@map("questions")
+  // Metadata
+  timeLimit Int      @default(90) @map("time_limit")
+  tags      String[]
+
+  // Relations
+  topic            Topic                 @relation(fields: [topicId], references: [id])
+  sessionQuestions SessionQuestion[]
+  questionHistory  UserQuestionHistory[]
+
+  // Timestamps & Audit
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  createdBy  String?   @map("created_by")
+  reviewedBy String?   @map("reviewed_by")
+  reviewedAt DateTime? @map("reviewed_at")
+
   @@index([grade, topicId, difficulty, qualityStatus])
   @@index([sourceType, qualityStatus])
   @@index([createdAt])
+  @@map("questions")
 }
 
 model QuestionTemplate {
-  id                String    @id @default(uuid())
-  code              String    @unique
-  topicId           String    @map("topic_id")
-  grade             Int
-  difficulty        Int       @default(3)
-  
-  // Generator Configuration (JSON)
-  generatorConfig   Json      @map("generator_config")
-  validatorConfig   Json?     @map("validator_config")
-  
-  // Status
-  isActive          Boolean   @default(true) @map("is_active")
-  qualityStatus     QualityStatus @default(DRAFT) @map("quality_status")
-  
-  // Relations
-  topic             Topic     @relation(fields: [topicId], references: [id])
-  variants          QuestionVariant[]
-  
-  // Timestamps
-  createdAt         DateTime  @default(now()) @map("created_at")
-  updatedAt         DateTime  @updatedAt @map("updated_at")
+  id         String @id @default(uuid())
+  code       String @unique
+  topicId    String @map("topic_id")
+  grade      Int
+  difficulty Int    @default(3)
 
-  @@map("question_templates")
+  // Generator Configuration (JSON)
+  generatorConfig Json  @map("generator_config")
+  validatorConfig Json? @map("validator_config")
+
+  // Status
+  isActive      Boolean       @default(true) @map("is_active")
+  qualityStatus QualityStatus @default(DRAFT) @map("quality_status")
+
+  // Relations
+  topic    Topic             @relation(fields: [topicId], references: [id])
+  variants QuestionVariant[]
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
   @@index([grade, topicId, isActive])
   @@index([qualityStatus])
+  @@map("question_templates")
 }
 
 model QuestionVariant {
-  id              String    @id @default(uuid())
-  templateId      String    @map("template_id")
-  seed            String
-  
+  id         String @id @default(uuid())
+  templateId String @map("template_id")
+  seed       String
+
   // Rendered Content
-  question        String
-  options         String[]
-  correctAnswer   Int       @map("correct_answer")
-  explanation     String?
-  
+  question      String
+  options       String[]
+  correctAnswer Int      @map("correct_answer")
+  explanation   String?
+
   // Metadata
-  difficulty      Int       @default(3)
-  
+  difficulty Int @default(3)
+
   // Relations
-  template        QuestionTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
-  
+  template QuestionTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
   // Timestamps
-  createdAt       DateTime  @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@unique([templateId, seed])
-  @@map("question_variants")
   @@index([templateId])
+  @@map("question_variants")
 }
 
 // ============================================
@@ -225,86 +225,87 @@ model QuestionVariant {
 // ============================================
 
 model Session {
-  id              String          @id @default(uuid())
-  userId          String          @map("user_id")
-  grade           Int
-  status          SessionStatus   @default(ACTIVE)
-  
-  // Configuration
-  totalQuestions  Int             @default(10) @map("total_questions")
-  durationSeconds Int             @default(900) @map("duration_seconds")
-  
-  // Timing
-  startedAt       DateTime        @default(now()) @map("started_at")
-  expiresAt       DateTime        @map("expires_at")
-  completedAt     DateTime?       @map("completed_at")
-  
-  // Results
-  score           Int?
-  correctAnswers  Int?            @map("correct_answers")
-  totalTimeSpent  Int?            @map("total_time_spent")
-  
-  // Relations
-  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  sessionQuestions SessionQuestion[]
-  
-  // Timestamps
-  createdAt       DateTime        @default(now()) @map("created_at")
-  updatedAt       DateTime        @updatedAt @map("updated_at")
+  id     String        @id @default(uuid())
+  userId String        @map("user_id")
+  grade  Int
+  status SessionStatus @default(ACTIVE)
 
-  @@map("sessions")
+  // Configuration
+  totalQuestions  Int @default(10) @map("total_questions")
+  durationSeconds Int @default(900) @map("duration_seconds")
+
+  // Timing
+  startedAt   DateTime  @default(now()) @map("started_at")
+  expiresAt   DateTime  @map("expires_at")
+  completedAt DateTime? @map("completed_at")
+
+  // Results
+  score          Int?
+  correctAnswers Int? @map("correct_answers")
+  totalTimeSpent Int? @map("total_time_spent")
+
+  // Relations
+  user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionQuestions SessionQuestion[]
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
   @@index([userId, status])
   @@index([userId, startedAt])
   @@index([expiresAt])
+  @@map("sessions")
 }
 
 model SessionQuestion {
-  id              String          @id @default(uuid())
-  sessionId       String          @map("session_id")
-  ordinal         Int
-  
+  id        String @id @default(uuid())
+  sessionId String @map("session_id")
+  ordinal   Int
+
   // Question Reference (polymorphic)
-  refType         QuestionRefType @map("ref_type")
-  questionId      String?         @map("question_id")
-  variantId       String?         @map("variant_id")
-  
+  refType    QuestionRefType @map("ref_type")
+  questionId String?         @map("question_id")
+  variantId  String?         @map("variant_id")
+
   // Snapshot of question at session time
-  questionSnapshot Json?          @map("question_snapshot")
-  
+  questionSnapshot Json? @map("question_snapshot")
+
   // Relations
-  session         Session         @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  answer          SessionAnswer?
-  
+  session Session        @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  answer  SessionAnswer?
+
   // Timestamps
-  createdAt       DateTime        @default(now()) @map("created_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  Question  Question? @relation(fields: [questionId], references: [id])
 
   @@unique([sessionId, ordinal])
-  @@map("session_questions")
   @@index([sessionId])
+  @@map("session_questions")
 }
 
 model SessionAnswer {
-  id                  String          @id @default(uuid())
-  sessionQuestionId   String          @unique @map("session_question_id")
-  
-  // Answer
-  selectedOption      Int             @map("selected_option")
-  isCorrect           Boolean         @map("is_correct")
-  
-  // Timing
-  timeSpentSeconds    Int             @map("time_spent_seconds")
-  answeredAt          DateTime        @default(now()) @map("answered_at")
-  
-  // Relations
-  sessionQuestion     SessionQuestion @relation(fields: [sessionQuestionId], references: [id], onDelete: Cascade)
-  user                User?           @relation(fields: [userId], references: [id])
-  userId              String?         @map("user_id")
-  
-  // Timestamps
-  createdAt           DateTime        @default(now()) @map("created_at")
+  id                String @id @default(uuid())
+  sessionQuestionId String @unique @map("session_question_id")
 
-  @@map("session_answers")
+  // Answer
+  selectedOption Int     @map("selected_option")
+  isCorrect      Boolean @map("is_correct")
+
+  // Timing
+  timeSpentSeconds Int      @map("time_spent_seconds")
+  answeredAt       DateTime @default(now()) @map("answered_at")
+
+  // Relations
+  sessionQuestion SessionQuestion @relation(fields: [sessionQuestionId], references: [id], onDelete: Cascade)
+  user            User?           @relation(fields: [userId], references: [id])
+  userId          String?         @map("user_id")
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+
   @@index([userId, createdAt])
+  @@map("session_answers")
 }
 
 // ============================================
@@ -312,80 +313,80 @@ model SessionAnswer {
 // ============================================
 
 model UserQuestionHistory {
-  id            String            @id @default(uuid())
-  userId        String            @map("user_id")
-  
-  // Question Reference
-  refType       QuestionRefType   @map("ref_type")
-  questionId    String?           @map("question_id")
-  variantId     String?           @map("variant_id")
-  
-  // Context
-  sessionId     String?           @map("session_id")
-  seenAt        DateTime          @default(now()) @map("seen_at")
-  wasCorrect    Boolean?          @map("was_correct")
-  
-  // Relations
-  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  question      Question?         @relation(fields: [questionId], references: [id])
-  
-  // Timestamps
-  createdAt     DateTime          @default(now()) @map("created_at")
+  id     String @id @default(uuid())
+  userId String @map("user_id")
 
-  @@map("user_question_history")
+  // Question Reference
+  refType    QuestionRefType @map("ref_type")
+  questionId String?         @map("question_id")
+  variantId  String?         @map("variant_id")
+
+  // Context
+  sessionId  String?  @map("session_id")
+  seenAt     DateTime @default(now()) @map("seen_at")
+  wasCorrect Boolean? @map("was_correct")
+
+  // Relations
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question Question? @relation(fields: [questionId], references: [id])
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+
   @@index([userId, seenAt])
   @@index([userId, refType, questionId])
+  @@map("user_question_history")
 }
 
 model UserDailyActivity {
-  id                  String    @id @default(uuid())
-  userId              String    @map("user_id")
-  activityDate        DateTime  @map("activity_date")
-  
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  activityDate DateTime @map("activity_date")
+
   // Activity Counts
-  completedSessions   Int       @default(0) @map("completed_sessions")
-  totalQuestions      Int       @default(0) @map("total_questions")
-  correctAnswers      Int       @default(0) @map("correct_answers")
-  totalTimeSpent      Int       @default(0) @map("total_time_spent")
-  
+  completedSessions Int @default(0) @map("completed_sessions")
+  totalQuestions    Int @default(0) @map("total_questions")
+  correctAnswers    Int @default(0) @map("correct_answers")
+  totalTimeSpent    Int @default(0) @map("total_time_spent")
+
   // Relations
-  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   // Timestamps
-  createdAt           DateTime  @default(now()) @map("created_at")
-  updatedAt           DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([userId, activityDate])
-  @@map("user_daily_activity")
   @@index([userId, activityDate])
+  @@map("user_daily_activity")
 }
 
 model UserTopicMastery {
-  id                String    @id @default(uuid())
-  userId            String    @map("user_id")
-  grade             Int
-  topicId           String    @map("topic_id")
-  
+  id      String @id @default(uuid())
+  userId  String @map("user_id")
+  grade   Int
+  topicId String @map("topic_id")
+
   // Mastery Metrics
-  masteryScore      Float     @default(0) @map("mastery_score")
-  totalAttempts     Int       @default(0) @map("total_attempts")
-  correctAttempts   Int       @default(0) @map("correct_attempts")
-  
+  masteryScore    Float @default(0) @map("mastery_score")
+  totalAttempts   Int   @default(0) @map("total_attempts")
+  correctAttempts Int   @default(0) @map("correct_attempts")
+
   // Timing
-  lastPracticedAt   DateTime? @map("last_practiced_at")
-  
+  lastPracticedAt DateTime? @map("last_practiced_at")
+
   // Relations
-  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  topic             Topic     @relation(fields: [topicId], references: [id])
-  
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topic Topic @relation(fields: [topicId], references: [id])
+
   // Timestamps
-  createdAt         DateTime  @default(now()) @map("created_at")
-  updatedAt         DateTime  @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@unique([userId, topicId])
-  @@map("user_topic_mastery")
   @@index([userId, grade])
   @@index([topicId, masteryScore])
+  @@map("user_topic_mastery")
 }
 
 // ============================================
@@ -393,23 +394,23 @@ model UserTopicMastery {
 // ============================================
 
 model Progress {
-  id              String    @id @default(uuid())
-  userId          String    @unique @map("user_id")
-  
+  id     String @id @default(uuid())
+  userId String @unique @map("user_id")
+
   // Overall Stats
-  totalSessions   Int       @default(0) @map("total_sessions")
-  totalQuestions  Int       @default(0) @map("total_questions")
-  correctAnswers  Int       @default(0) @map("correct_answers")
-  totalTimeSpent  Int       @default(0) @map("total_time_spent")
-  
+  totalSessions  Int @default(0) @map("total_sessions")
+  totalQuestions Int @default(0) @map("total_questions")
+  correctAnswers Int @default(0) @map("correct_answers")
+  totalTimeSpent Int @default(0) @map("total_time_spent")
+
   // Accuracy
-  accuracy        Float     @default(0)
-  
+  accuracy Float @default(0)
+
   // Relations
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   // Timestamps
-  updatedAt       DateTime  @updatedAt @map("updated_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("user_progress")
 }
@@ -420,12 +421,12 @@ model Streak {
   current         Int       @default(0)
   longest         Int       @default(0)
   lastCompletedAt DateTime? @map("last_completed_at")
-  
+
   // Relations
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   // Timestamps
-  updatedAt       DateTime  @updatedAt @map("updated_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("user_streaks")
 }

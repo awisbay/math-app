@@ -1,15 +1,11 @@
 import { Controller, Get } from '@nestjs/common';
 import { PrismaService } from '../common/prisma.service';
-import { FirebaseService } from '../common/firebase.service';
 
 @Controller('health')
 export class HealthController {
-  constructor(
-    private prisma: PrismaService,
-    private firebaseService: FirebaseService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
-  @Get()
+  @Get('')
   async health() {
     return {
       status: 'healthy',
@@ -31,17 +27,6 @@ export class HealthController {
       checks.database = {
         status: 'unhealthy',
         error: error instanceof Error ? error.message : 'Unknown error',
-      };
-      allHealthy = false;
-    }
-
-    // Check Firebase
-    if (this.firebaseService) {
-      checks.firebase = { status: 'healthy' };
-    } else {
-      checks.firebase = {
-        status: 'unhealthy',
-        error: 'Firebase service not initialized',
       };
       allHealthy = false;
     }

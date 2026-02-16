@@ -38,14 +38,15 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // API Versioning
-  app.enableVersioning({
-    type: VersioningType.URI,
-    defaultVersion: '1',
-  });
+  // API Versioning - DISABLED for health check fix
+  // app.enableVersioning({
+  //   type: VersioningType.URI,
+  //   defaultVersion: '1',
+  // });
 
   // Global API prefix
-  app.setGlobalPrefix('api/v1');
+  const apiPrefix = configService.get('API_PREFIX', 'api/v1');
+  app.setGlobalPrefix(apiPrefix);
 
   const port = configService.get<number>('PORT', 3000);
 

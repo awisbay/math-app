@@ -65,7 +65,7 @@ export class TemplateGenerationService {
 
     // Generate new variant (simplified)
     const generated = this.renderTemplate(
-      template.generatorConfig as TemplateConfig,
+      template.generatorConfig as unknown as TemplateConfig,
       variantSeed,
     );
 

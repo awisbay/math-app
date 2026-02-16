@@ -61,13 +61,16 @@ export class AuthService {
       }
     }
 
+    // Default to grade 1 if no grade determined
+    const finalGrade = currentGrade ?? 1;
+
     // Create user in database
     const user = await this.prisma.user.create({
       data: {
         email: dto.email,
         name: dto.name,
         birthDate,
-        currentGrade,
+        currentGrade: finalGrade,
         firebaseUid: firebaseUser.uid,
       },
     });

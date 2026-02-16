@@ -184,8 +184,8 @@ export class SessionService {
     }
 
     // Find the session question
-    const sessionQuestion = session.sessionQuestions.find(
-      (sq) => sq.id === dto.sessionQuestionId,
+    const sessionQuestion = (session as any).sessionQuestions.find(
+      (sq: any) => sq.id === dto.sessionQuestionId,
     );
 
     if (!sessionQuestion) {
@@ -252,13 +252,13 @@ export class SessionService {
     }
 
     // Calculate results
-    const answers = session.sessionQuestions
-      .map((sq) => sq.answer)
+    const answers = (session as any).sessionQuestions
+      .map((sq: any) => sq.answer)
       .filter(Boolean);
 
-    const correctAnswers = answers.filter((a) => a?.isCorrect).length;
+    const correctAnswers = answers.filter((a: any) => a?.isCorrect).length;
     const totalTimeSpent = answers.reduce(
-      (sum, a) => sum + (a?.timeSpentSeconds || 0),
+      (sum: any, a: any) => sum + (a?.timeSpentSeconds || 0),
       0,
     );
 
